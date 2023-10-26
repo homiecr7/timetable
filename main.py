@@ -152,14 +152,14 @@ def delete_event():
 
 # Function to print the weekly timetable (FR11)
 def print_timetable():
-
+    choose_start_day()  # Call the choose_start_day function
     print("Weekly Timetable:")
     for day in WEEK_DAYS:
         print(day)
         for event in timetable[day]:
             print(f"{event['start_time']}-{event['end_time']} => {event['title']} @ {event['location']}")
 
-# Function to print events on a specific day (FR12)
+# Function to print events on a specific day
 def print_events_on_day():
     """
     Print the weekly timetable, including events for each day of the week.
@@ -168,6 +168,7 @@ def print_events_on_day():
     the day of the week and, for each event, the start time, end time, title, and location (if provided).
     """
     day = input("Enter the day of the week (e.g., Monday): ")
+    choose_start_day()  # Call the choose_start_day function
     print(f"Events on {day}:")
     for event in timetable[day]:
         print(f"{event['start_time']}-{event['end_time']} => {event['title']} @ {event['location']}")
@@ -191,7 +192,12 @@ def save_timetable():
 
 # Function to load the timetable from a file
 def load_timetable():
-
+    """
+    Load timetable data from a file.
+    This function allows the user to specify a file from which to load timetable data. The data should be
+    formatted with each line representing an event and containing day, title, start time, end time, and location.
+    The function attempts to read and parse the file, adding the events to the weekly timetable.
+    """
     file_name = input("Enter the file name to load the timetable data: ")
     try:
         with open(file_name, "r") as file:
@@ -232,6 +238,23 @@ def search_events():
             print(f"{event['start_time']}-{event['end_time']} => {event['title']} @ {event['location']}")
     else:
         print("No matching events found.")
+
+def choose_start_day():
+    """
+    Allow the user to choose the start day of the week.
+
+    This function prompts the user to select the start day of the week, which can be either Monday (1) or Sunday (2).
+    Based on the user's choice, the order of days in the weekly timetable is adjusted accordingly.
+    If the user provides an invalid choice, the default start day of Monday is used, and a message is displayed.
+    """
+    global WEEK_DAYS
+    choice = input("Choose the start day of the week (1 for Monday, 2 for Sunday): ")
+    if choice == '1':
+        WEEK_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    elif choice == '2':
+        WEEK_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    else:
+        print("Invalid choice. Defaulting to Monday as the start day of the week.")
 
 # Main program loop
 def main():
