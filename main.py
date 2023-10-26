@@ -150,7 +150,7 @@ def delete_event():
     if not event_found:
         print("No matching events found.")
 
-# Function to print the weekly timetable (FR11)
+# Function to print the weekly timetable
 def print_timetable():
     choose_start_day()  # Call the choose_start_day function
     print("Weekly Timetable:")
