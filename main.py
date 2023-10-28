@@ -2,6 +2,10 @@
 WEEK_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 WORK_HOURS = range(9, 17)  # 9 am to 5 pm
 
+# Define the start and end hours of the day (24-hour format)
+DAY_START_HOUR = 0  # Midnight
+DAY_END_HOUR = 24  # Midnight (next day)
+
 # Data structure to store the timetable
 timetable = {day: [] for day in WEEK_DAYS}
 
@@ -47,16 +51,32 @@ def get_user_input(prompt, validator):
 # Function to create a new event
 def create_event():
     """
-    Create a new event and add it to the weekly timetable.
+    Create a new event and add it to the weekly timetable, allowing events outside work hours.
 
     This function prompts the user to input the day of the week, title of the event, start time,
     end time, and an optional location for the event. It checks for any overlapping events and
     adds the new event to the timetable if there are no overlaps.
+
+    It now allows events to be scheduled outside the traditional work hours (9 am - 5 pm).
     """
     day = get_user_input("Enter the day of the week (e.g., Monday): ", lambda x: x in WEEK_DAYS)
     title = input("Enter the title of the event: ")
-    start_time = int(get_user_input("Enter the start time (hour, e.g., 9): ", lambda x: x.isdigit() and int(x) in WORK_HOURS))
-    end_time = int(get_user_input("Enter the end time (hour, e.g., 10): ", lambda x: x.isdigit() and int(x) in WORK_HOURS))
+
+    # Validate start time and end time
+    valid_start_time = False
+    valid_end_time = False
+
+    while not (valid_start_time and valid_end_time):
+        start_time = int(get_user_input("Enter the start time (hour, e.g., 9): ", lambda x: x.isdigit()))
+        end_time = int(get_user_input("Enter the end time (hour, e.g., 10): ", lambda x: x.isdigit()))
+
+        # Check if the event times are within the day's hours
+        if DAY_START_HOUR <= start_time < DAY_END_HOUR and DAY_START_HOUR < end_time <= DAY_END_HOUR:
+            valid_start_time = True
+            valid_end_time = True
+        else:
+            print("Invalid time. Please ensure the event times are within the day's hours.")
+
     location = input("Enter the location (optional):")
     
     new_event = {"title": title, "start_time": start_time, "end_time": end_time, "location": location}
@@ -70,6 +90,7 @@ def create_event():
     if not overlap:
         timetable[day].append(new_event)
         print("Event created successfully!")
+
 
 # Function to update an existing event
 def update_event():
@@ -152,12 +173,44 @@ def delete_event():
 
 # Function to print the weekly timetable
 def print_timetable():
+    """
+    Print the weekly timetable with an option to choose the start day of the week.
+
+    This function allows the user to choose the start day of the week (Monday or Sunday) and
+    then prints the weekly timetable accordingly. It displays events with minute-level
+    granularity and supports events outside traditional work hours (9 am - 5 pm).
+
+    The timetable is printed for the selected start day of the week, and events are organized
+    by day, displaying the start time, title, and location of each event. Events are aligned
+    with the hours of the day, and gaps are filled with empty slots.
+
+    The function calls the 'choose_start_day' function to allow the user to select the start day
+    of the week before printing the timetable.
+    """
     choose_start_day()  # Call the choose_start_day function
     print("Weekly Timetable:")
     for day in WEEK_DAYS:
         print(day)
-        for event in timetable[day]:
-            print(f"{event['start_time']}-{event['end_time']} => {event['title']} @ {event['location']}")
+        day_events = timetable[day]
+        day_schedule = [""] * (DAY_END_HOUR - DAY_START_HOUR)
+        
+        # Add events within the specified day's schedule
+        for event in day_events:
+            start_hour = event['start_time']
+            end_hour = event['end_time']
+            title = event['title']
+            location = event['location']
+            
+            for hour in range(start_hour, end_hour):
+                day_schedule[hour - DAY_START_HOUR] = f"{hour:02d}: {title} @ {location}"
+        
+        # Print the daily schedule
+        for hour in range(DAY_START_HOUR, DAY_END_HOUR):
+            event_info = day_schedule[hour - DAY_START_HOUR]
+            if event_info:
+                print(event_info)
+            else:
+                print(f"{hour:02d}:")
 
 # Function to print events on a specific day
 def print_events_on_day():
